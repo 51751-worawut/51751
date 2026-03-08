@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Urban Shop</title>
+<title>Sweet Shop</title>
 
 <style>
 
 body{
 font-family:Arial;
 margin:0;
-background:linear-gradient(120deg,#4facfe,#00f2fe);
+background:linear-gradient(120deg,#f9c9d0,#ffb6c1);
 min-height:100vh;
 }
 
@@ -38,6 +38,14 @@ nav button:hover{
 background:#ff3d00;
 }
 
+.logout{
+background:#ff1744;
+}
+
+.logout:hover{
+background:#d50000;
+}
+
 section{
 display:none;
 padding:30px;
@@ -55,10 +63,6 @@ padding:30px;
 border-radius:15px;
 text-align:center;
 box-shadow:0 10px 20px rgba(0,0,0,0.2);
-}
-
-.login-box h2{
-color:#333;
 }
 
 input,select{
@@ -102,14 +106,18 @@ object-fit:cover;
 border-radius:10px;
 }
 
+.preview-img{
+width:100%;
+max-height:150px;
+object-fit:cover;
+border-radius:10px;
+margin-top:10px;
+}
+
 .add{
 background:#00c853;
 color:white;
 margin-top:10px;
-}
-
-.add:hover{
-background:#00a843;
 }
 
 .cart-box{
@@ -124,8 +132,7 @@ table{
 width:100%;
 border-collapse:collapse;
 background:white;
-border-radius:10px;
-overflow:hidden;
+margin-top:10px;
 }
 
 th{
@@ -140,19 +147,19 @@ text-align:center;
 }
 
 </style>
-
 </head>
 
 <body>
 
 <header>
-<h2>Urban Shop</h2>
+<h2>Sweet Shop</h2>
 
 <nav>
 <button onclick="showPage('shop')">สินค้า</button>
 <button onclick="showPage('cart')">ตะกร้า</button>
 <button onclick="showPage('payment')">ชำระเงิน</button>
 <button onclick="showPage('admin')">Admin</button>
+<button class="logout" onclick="logout()">Logout</button>
 </nav>
 
 </header>
@@ -185,65 +192,7 @@ text-align:center;
 
 <h2 style="color:white">สินค้า</h2>
 
-<div class="products">
-
-<div class="product">
-<img src="https://picsum.photos/200?1">
-<h3>เสื้อยืด</h3>
-<p>250 บาท</p>
-<button class="add" onclick="addCart('เสื้อยืด',250)">เพิ่ม</button>
-</div>
-
-<div class="product">
-<img src="https://picsum.photos/200?2">
-<h3>รองเท้ากีฬา</h3>
-<p>1200 บาท</p>
-<button class="add" onclick="addCart('รองเท้า',1200)">เพิ่ม</button>
-</div>
-
-<div class="product">
-<img src="https://picsum.photos/200?3">
-<h3>หูฟัง</h3>
-<p>850 บาท</p>
-<button class="add" onclick="addCart('หูฟัง',850)">เพิ่ม</button>
-</div>
-
-<div class="product">
-<img src="https://picsum.photos/200?4">
-<h3>กระเป๋า</h3>
-<p>600 บาท</p>
-<button class="add" onclick="addCart('กระเป๋า',600)">เพิ่ม</button>
-</div>
-
-<div class="product">
-<img src="https://picsum.photos/200?5">
-<h3>นาฬิกา</h3>
-<p>1500 บาท</p>
-<button class="add" onclick="addCart('นาฬิกา',1500)">เพิ่ม</button>
-</div>
-
-<div class="product">
-<img src="https://picsum.photos/200?6">
-<h3>แว่นกันแดด</h3>
-<p>500 บาท</p>
-<button class="add" onclick="addCart('แว่นกันแดด',500)">เพิ่ม</button>
-</div>
-
-<div class="product">
-<img src="https://picsum.photos/200?7">
-<h3>เมาส์เกมมิ่ง</h3>
-<p>750 บาท</p>
-<button class="add" onclick="addCart('เมาส์',750)">เพิ่ม</button>
-</div>
-
-<div class="product">
-<img src="https://picsum.photos/200?8">
-<h3>คีย์บอร์ด</h3>
-<p>1200 บาท</p>
-<button class="add" onclick="addCart('คีย์บอร์ด',1200)">เพิ่ม</button>
-</div>
-
-</div>
+<div class="products" id="productList"></div>
 
 </section>
 
@@ -253,9 +202,12 @@ text-align:center;
 <h2>ตะกร้าสินค้า</h2>
 
 <div class="cart-box">
+
 <div id="cartItems"></div>
 
 <p><b>รวมราคา: <span id="total">0</span> บาท</b></p>
+
+<button onclick="showPage('shop')">← กลับหน้าร้าน</button>
 
 </div>
 
@@ -276,7 +228,11 @@ text-align:center;
 <option>เก็บเงินปลายทาง</option>
 </select>
 
-<button style="background:#4caf50;color:white;" onclick="alert('สั่งซื้อสำเร็จ')">ยืนยันการสั่งซื้อ</button>
+<button style="background:#4caf50;color:white;" onclick="confirmOrder()">ยืนยันการสั่งซื้อ</button>
+
+<br><br>
+
+<button onclick="showPage('shop')">← กลับหน้าร้าน</button>
 
 </div>
 
@@ -285,35 +241,47 @@ text-align:center;
 <!-- ADMIN -->
 <section id="admin">
 
-<h2>ระบบจัดการคลังสินค้า</h2>
+<h2>ระบบจัดการสินค้า</h2>
 
-<table>
+<div class="cart-box">
 
+<h3>เพิ่มสินค้า</h3>
+
+<input id="pname" placeholder="ชื่อสินค้า">
+<input id="pprice" placeholder="ราคา">
+
+<input type="file" id="pimg" accept="image/*">
+
+<img id="preview" class="preview-img">
+
+<input id="pstock" placeholder="จำนวนสินค้า">
+
+<button style="background:#4caf50;color:white;" onclick="addProduct()">เพิ่มสินค้า</button>
+
+</div>
+
+<h3>คลังสินค้า</h3>
+
+<table id="productTable">
 <tr>
 <th>สินค้า</th>
 <th>ราคา</th>
 <th>จำนวน</th>
 </tr>
-
-<tr>
-<td>เสื้อยืด</td>
-<td>250</td>
-<td>30</td>
-</tr>
-
-<tr>
-<td>รองเท้า</td>
-<td>1200</td>
-<td>12</td>
-</tr>
-
-<tr>
-<td>หูฟัง</td>
-<td>850</td>
-<td>20</td>
-</tr>
-
 </table>
+
+<h3>รายการสั่งซื้อ</h3>
+
+<table id="orderTable">
+<tr>
+<th>สินค้า</th>
+<th>ราคา</th>
+</tr>
+</table>
+
+<br>
+
+<button onclick="showPage('shop')">← กลับหน้าร้าน</button>
 
 </section>
 
@@ -322,6 +290,36 @@ text-align:center;
 let cart=[]
 let total=0
 let users=[{u:"admin",p:"1234"}]
+
+let products=[
+{name:"เค้กช็อกโกแลต",price:250,img:"https://images.unsplash.com/photo-1606312619070-d48b4c652a52",stock:10},
+{name:"คุกกี้",price:120,img:"https://images.unsplash.com/photo-1499636136210-6f4ee915583e",stock:15},
+{name:"พายสตรอว์เบอร์รี",price:150,img:"https://images.unsplash.com/photo-1565958011703-44f9829ba187",stock:8}
+]
+
+function renderProducts(){
+
+let html=""
+
+products.forEach((p,i)=>{
+
+html+=`
+<div class="product">
+<img src="${p.img}">
+<h3>${p.name}</h3>
+<p>${p.price} บาท</p>
+<p>คงเหลือ: <span id="stock${i}">${p.stock}</span></p>
+<button class="add" onclick="addCart(${i})">เพิ่ม</button>
+</div>
+`
+
+})
+
+document.getElementById("productList").innerHTML=html
+
+}
+
+renderProducts()
 
 function showPage(page){
 
@@ -333,10 +331,30 @@ document.getElementById(page).classList.add("active")
 
 }
 
-function addCart(name,price){
+function logout(){
 
-cart.push({name,price})
-total+=price
+cart=[]
+total=0
+renderCart()
+
+alert("ออกจากระบบแล้ว")
+
+showPage("login")
+
+}
+
+function addCart(index){
+
+let p=products[index]
+
+if(p.stock<=0){
+alert("สินค้าหมด")
+return
+}
+
+cart.push(index)
+total+=p.price
+
 renderCart()
 
 }
@@ -345,12 +363,39 @@ function renderCart(){
 
 let html=""
 
-cart.forEach(item=>{
-html+=`<p>${item.name} - ${item.price} บาท</p>`
+cart.forEach(i=>{
+html+=`<p>${products[i].name} - ${products[i].price} บาท</p>`
 })
 
 document.getElementById("cartItems").innerHTML=html
 document.getElementById("total").innerText=total
+
+}
+
+function confirmOrder(){
+
+cart.forEach(i=>{
+
+products[i].stock--
+
+document.getElementById("stock"+i).innerText=products[i].stock
+
+document.getElementById("orderTable").innerHTML+=`
+<tr>
+<td>${products[i].name}</td>
+<td>${products[i].price}</td>
+</tr>
+`
+
+})
+
+alert("สั่งซื้อสำเร็จ")
+
+cart=[]
+total=0
+renderCart()
+
+showPage("shop")
 
 }
 
@@ -362,15 +407,10 @@ let p=document.getElementById("pass").value
 let found=users.find(x=>x.u==u && x.p==p)
 
 if(found){
-
 alert("เข้าสู่ระบบสำเร็จ")
-
 showPage("shop")
-
 }else{
-
 alert("ข้อมูลไม่ถูกต้อง")
-
 }
 
 }
@@ -383,6 +423,51 @@ let p=document.getElementById("newpass").value
 users.push({u,p})
 
 alert("สมัครสมาชิกสำเร็จ")
+
+}
+
+document.getElementById("pimg").addEventListener("change",function(){
+
+const file=this.files[0]
+
+if(file){
+
+const reader=new FileReader()
+
+reader.onload=function(e){
+document.getElementById("preview").src=e.target.result
+}
+
+reader.readAsDataURL(file)
+
+}
+
+})
+
+function addProduct(){
+
+let name=document.getElementById("pname").value
+let price=parseInt(document.getElementById("pprice").value)
+let stock=parseInt(document.getElementById("pstock").value)
+let img=document.getElementById("preview").src
+
+if(!img){
+img="https://via.placeholder.com/300"
+}
+
+products.push({name,price,img,stock})
+
+renderProducts()
+
+document.getElementById("productTable").innerHTML+=`
+<tr>
+<td>${name}</td>
+<td>${price}</td>
+<td>${stock}</td>
+</tr>
+`
+
+alert("เพิ่มสินค้าเรียบร้อย")
 
 }
 
